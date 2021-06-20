@@ -1,0 +1,40 @@
+name: Release CI
+
+on:
+  pull_request:
+    branches:
+      - master
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          token: ${{ env.GITHUB_TOKEN }}
+
+      - name: Setup JDK
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+
+      - name: Build and check size
+        if: success()
+        id: build_app
+        run: |
+          ./gradlew assembleDebug
+          apk_path="$GITHUB_WORKSPACE/app/build/outputs/apk/debug/app-debug.apk"
+          size="$(stat -c%s $apk_path)"
+          echo "::set-output name=app_size::$size"
+
+      - name: Apk size message
+        if: success()
+        uses: mshick/add-pr-comment@v1
+        with:
+          message: |
+            **Your apk size - ${{ steps.build_app.outputs.app_size }} bytes**
