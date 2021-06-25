@@ -1,4 +1,4 @@
-name: Release CI
+name: Comment CI
 
 on:
   pull_request:
@@ -9,7 +9,7 @@ env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
-  release:
+  comment:
     runs-on: ubuntu-latest
 
     steps:
@@ -32,9 +32,9 @@ jobs:
           size="$(stat -c%s $apk_path)"
           echo "::set-output name=app_size::$size"
 
-      - name: Apk size message
+      - name: APK size message
         if: success()
         uses: mshick/add-pr-comment@v1
         with:
           message: |
-            **Your apk size - ${{ steps.build_app.outputs.app_size }} bytes**
+            **Your APK size - ${{ steps.build_app.outputs.app_size }} bytes**
